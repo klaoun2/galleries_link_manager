@@ -8,7 +8,7 @@
 #glm-wrap .glm-form-row      { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 #glm-wrap .glm-form-row label { width: 160px; flex-shrink: 0; font-weight: bold; }
 #glm-wrap .glm-form-row input[type=text] { flex: 1; max-width: 480px; }
-#glm-wrap table.table2 td code { font-size: 1.5em; }
+#glm-wrap table.table2 td code { font-size: 1.5em; } /* police cible */
 #glm-wrap .glm-actions { white-space: nowrap; }
 #glm-wrap .glm-actions form { display: inline; }
 
@@ -36,7 +36,7 @@
 }
 #glm-browser-path {
   background: #f5f5f5; border-bottom: 1px solid #ddd;
-  padding: 6px 12px; font-family: monospace; font-size: .88em;
+  padding: 6px 12px; font-family: monospace; font-size: 2.0em; font-weight: bold; /* police rep selectionné */ 
   word-break: break-all; color: #333;
 }
 #glm-browser-list {

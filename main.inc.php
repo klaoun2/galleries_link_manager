@@ -5,7 +5,6 @@ Version: 1.0
 Description: Manage symbolic links in the Piwigo galleries directory
 Plugin URI:
 Author: Charles
-Has Settings: webmaster
 */
 
 if (!defined('PHPWG_ROOT_PATH'))

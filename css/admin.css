@@ -9,6 +9,7 @@
 #glm-wrap .glm-form-row label { width: 160px; flex-shrink: 0; font-weight: bold; }
 #glm-wrap .glm-form-row input[type=text] { flex: 1; max-width: 480px; }
 #glm-wrap table.table2 td code { font-size: 1.5em; } /* police cible */
+#glm-wrap .glm-help   { color: #777; font-size: .85em; font-style: italic; }
 #glm-wrap .glm-actions { white-space: nowrap; }
 #glm-wrap .glm-actions form { display: inline; }
 

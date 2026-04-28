@@ -69,7 +69,7 @@
     <div class="glm-form-row">
       <label for="glm-link-name">{$GLM_L_NAME_LBL}</label>
       <input type="text" id="glm-link-name" name="link_name"
-             pattern="[a-zA-Z0-9_\-\.]+" required
+             pattern="[a-zA-Z0-9_.-]+" required
              placeholder="mon_album">
     </div>
 
@@ -90,6 +90,41 @@
       </button>
       <button type="button" id="glm-cancel-btn" class="button" style="display:none">
         {$GLM_L_CANCEL}
+      </button>
+    </div>
+  </form>
+  </div>{* /margin-left:20px *}
+
+  {* ---------- Configuration ---------- *}
+  <div style="margin-left:20px">
+  <div class="glm-section">
+    <h3 style="text-align:left">{$GLM_L_CFG_TITLE}</h3>
+  </div>
+
+  <form method="post" action="{$GLM_FORM_ACTION}">
+    <input type="hidden" name="action"    value="save_config">
+    <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
+
+    <div class="glm-form-row">
+      <label for="glm-browser-root">{$GLM_L_CFG_ROOT_LBL}</label>
+      <input type="text" id="glm-browser-root" name="browser_root"
+             value="{$GLM_BROWSER_ROOT|escape}" placeholder="/">
+    </div>
+    <div class="glm-form-row">
+      <label></label>
+      <span class="glm-help">{$GLM_L_CFG_ROOT_HELP}</span>
+    </div>
+
+    <div class="glm-form-row">
+      <label for="glm-hide-at">{$GLM_L_CFG_HIDE_AT_LBL}</label>
+      <input type="checkbox" id="glm-hide-at" name="hide_at_dirs" value="1"{if $GLM_HIDE_AT_DIRS} checked{/if}>
+      <span class="glm-help">{$GLM_L_CFG_HIDE_AT_HELP}</span>
+    </div>
+
+    <div class="glm-form-row">
+      <label></label>
+      <button type="submit" class="button bigButton">
+        <span class="icon-floppy"></span> {$GLM_L_CFG_SAVE}
       </button>
     </div>
   </form>
@@ -122,7 +157,7 @@
   var cfg = {/literal}{$GLM_JS_CONFIG}{literal};
 
   /* ---- state ---- */
-  var currentDir = cfg.browserStart || '/';
+  var currentDir = cfg.browserRoot || '/';
 
   /* ---- DOM refs ---- */
   var overlay    = document.getElementById('glm-overlay');
@@ -189,7 +224,7 @@
 
   function openBrowser() {
     var cur = targetInp.value.trim();
-    loadDir(cur || cfg.browserStart || '/');
+    loadDir(cur || cfg.browserRoot || '/');
     overlay.classList.add('open');
   }
 
@@ -215,12 +250,12 @@
       var name   = this.getAttribute('data-name');
       var target = this.getAttribute('data-target');
 
-      formTitle.textContent  = cfg.labels.editTitle + ' — ' + name;
-      actionInp.value        = 'edit';
-      nameInp.value          = name;
-      nameInp.readOnly       = true;
-      targetInp.value        = target;
-      submitLbl.textContent  = cfg.labels.update;
+      formTitle.textContent   = cfg.labels.editTitle + ' — ' + name;
+      actionInp.value         = 'edit';
+      nameInp.value           = name;
+      nameInp.readOnly        = true;
+      targetInp.value         = target;
+      submitLbl.textContent   = cfg.labels.update;
       cancelBtn.style.display = '';
 
       document.getElementById('glm-form').scrollIntoView({ behavior: 'smooth' });

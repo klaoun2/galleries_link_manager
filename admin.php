@@ -5,6 +5,13 @@ defined('GLM_PATH') or die('Hacking attempt!');
 // | Helper functions                                                          |
 // +---------------------------------------------------------------------------+
 
+function glm_path_allowed($path, $browser_root)
+{
+  $root = rtrim($browser_root, '/');
+  if ($root === '' || $root === '/') return true;
+  return $path === $root || strpos($path . '/', $root . '/') === 0;
+}
+
 function glm_is_restricted($path)
 {
   $restricted = array(
@@ -53,18 +60,29 @@ function glm_list_symlinks($galleries_dir)
 
 if (isset($_GET['ajax']))
 {
-  while (ob_get_level() > 0)
-  {
-    ob_end_clean();
-  }
+  global $conf;
+  $browser_root  = isset($conf['galleries_link_manager']['browser_root'])
+    ? $conf['galleries_link_manager']['browser_root']
+    : '/';
+  $hide_at_dirs  = isset($conf['galleries_link_manager']['hide_at_dirs'])
+    ? (bool)$conf['galleries_link_manager']['hide_at_dirs']
+    : true;
+
+  while (ob_get_level() > 0) { ob_end_clean(); }
   header('Content-Type: application/json; charset=utf-8');
 
-  $dir  = isset($_GET['dir']) ? $_GET['dir'] : '/';
+  $dir  = isset($_GET['dir']) ? $_GET['dir'] : $browser_root;
   $real = @realpath($dir);
 
   if ($real === false || !is_dir($real))
   {
     echo json_encode(array('success' => false, 'error' => 'Invalid directory'));
+    exit();
+  }
+
+  if (!glm_path_allowed($real, $browser_root))
+  {
+    echo json_encode(array('success' => false, 'error' => 'Access denied'));
     exit();
   }
 
@@ -78,25 +96,27 @@ if (isset($_GET['ajax']))
   $entries = array();
   foreach ($items as $item)
   {
-    if ($item === '.' || $item === '..')
-    {
-      continue;
-    }
+    if ($item === '.' || $item === '..') continue;
+    if ($hide_at_dirs && $item[0] === '@') continue;
     $item_path = $real . '/' . $item;
     if (is_dir($item_path) && !is_link($item_path))
     {
       $entries[] = array('name' => $item, 'path' => $item_path);
     }
   }
-
   usort($entries, function($a, $b) { return strcasecmp($a['name'], $b['name']); });
 
+  // Parent : null si on est déjà à la racine autorisée
   $parent = dirname($real);
+  if ($real === rtrim($browser_root, '/') || !glm_path_allowed($parent, $browser_root))
+  {
+    $parent = null;
+  }
 
   echo json_encode(array(
     'success' => true,
     'current' => $real,
-    'parent'  => ($parent !== $real) ? $parent : null,
+    'parent'  => $parent,
     'entries' => $entries,
   ));
   exit();
@@ -108,6 +128,9 @@ if (isset($_GET['ajax']))
 
 check_status(ACCESS_ADMINISTRATOR);
 
+global $conf;
+$glm_conf     = $conf['galleries_link_manager'];
+$browser_root = isset($glm_conf['browser_root']) ? $glm_conf['browser_root'] : '/';
 $galleries_dir = realpath(PHPWG_ROOT_PATH . 'galleries');
 
 // +---------------------------------------------------------------------------+
@@ -120,12 +143,29 @@ if (!empty($page_action))
 {
   check_pwg_token();
 
-  if ($page_action === 'create' || $page_action === 'edit')
+  if ($page_action === 'save_config')
+  {
+    $new_root = trim($_POST['browser_root']);
+    if (empty($new_root))
+    {
+      $page['errors'][] = l10n('glm_config_root_required');
+    }
+    else
+    {
+      $glm_conf['browser_root']  = $new_root;
+      $glm_conf['hide_at_dirs']  = !empty($_POST['hide_at_dirs']);
+      $browser_root = $new_root;
+      conf_update_param('galleries_link_manager', $glm_conf, true);
+      $conf['galleries_link_manager'] = $glm_conf;
+      $page['infos'][] = l10n('glm_config_saved');
+    }
+  }
+  elseif ($page_action === 'create' || $page_action === 'edit')
   {
     $link_name = isset($_POST['link_name']) ? trim($_POST['link_name']) : '';
     $target    = isset($_POST['target'])    ? trim($_POST['target'])    : '';
 
-    if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $link_name))
+    if (!preg_match('/^[a-zA-Z0-9_.-]+$/', $link_name))
     {
       $page['errors'][] = l10n('glm_invalid_link_name');
     }
@@ -203,13 +243,6 @@ if (!empty($page_action))
 
 $symlinks = glm_list_symlinks($galleries_dir);
 
-$piwigo_real  = realpath(PHPWG_ROOT_PATH);
-$browser_start = $piwigo_real ? dirname($piwigo_real) : '/';
-if (!$browser_start || $browser_start === $piwigo_real)
-{
-  $browser_start = '/';
-}
-
 // +---------------------------------------------------------------------------+
 // | Tabsheet                                                                  |
 // +---------------------------------------------------------------------------+
@@ -229,38 +262,44 @@ $tabsheet->assign();
 $template->assign(array(
   'GLM_SYMLINKS'      => $symlinks,
   'GLM_GALLERIES_DIR' => $galleries_dir,
+  'GLM_BROWSER_ROOT'  => $browser_root,
+  'GLM_HIDE_AT_DIRS'  => !empty($glm_conf['hide_at_dirs']),
   'GLM_FORM_ACTION'   => get_root_url() . 'admin.php?page=plugin-' . GLM_ID,
   'PWG_TOKEN'         => get_pwg_token(),
 
-  // Pre-translated labels used directly in HTML
-  'GLM_L_TITLE'       => l10n('glm_title'),
-  'GLM_L_COL_NAME'    => l10n('glm_col_name'),
-  'GLM_L_COL_TARGET'  => l10n('glm_col_target'),
-  'GLM_L_COL_STATUS'  => l10n('glm_col_status'),
-  'GLM_L_COL_ACTIONS' => l10n('glm_col_actions'),
-  'GLM_L_OK'          => l10n('glm_status_ok'),
-  'GLM_L_BROKEN'      => l10n('glm_status_broken'),
-  'GLM_L_NO_LINKS'    => l10n('glm_no_links'),
-  'GLM_L_EDIT'        => l10n('glm_edit'),
-  'GLM_L_DELETE'      => l10n('glm_delete'),
-  'GLM_L_NEW_TITLE'   => l10n('glm_new_title'),
-  'GLM_L_EDIT_TITLE'  => l10n('glm_edit_title'),
-  'GLM_L_NAME_LBL'    => l10n('glm_name_label'),
-  'GLM_L_TARGET_LBL'  => l10n('glm_target_label'),
-  'GLM_L_BROWSE'      => l10n('glm_browse'),
-  'GLM_L_CREATE'      => l10n('glm_create'),
-  'GLM_L_UPDATE'      => l10n('glm_update'),
-  'GLM_L_CANCEL'      => l10n('glm_cancel'),
-  'GLM_L_BR_TITLE'    => l10n('glm_browser_title'),
-  'GLM_L_BR_SELECT'   => l10n('glm_browser_select'),
-  'GLM_L_BR_LOADING'  => l10n('glm_browser_loading'),
-  'GLM_L_GALLERIES'   => l10n('glm_galleries_dir'),
+  'GLM_L_TITLE'         => l10n('glm_title'),
+  'GLM_L_COL_NAME'      => l10n('glm_col_name'),
+  'GLM_L_COL_TARGET'    => l10n('glm_col_target'),
+  'GLM_L_COL_STATUS'    => l10n('glm_col_status'),
+  'GLM_L_COL_ACTIONS'   => l10n('glm_col_actions'),
+  'GLM_L_OK'            => l10n('glm_status_ok'),
+  'GLM_L_BROKEN'        => l10n('glm_status_broken'),
+  'GLM_L_NO_LINKS'      => l10n('glm_no_links'),
+  'GLM_L_EDIT'          => l10n('glm_edit'),
+  'GLM_L_DELETE'        => l10n('glm_delete'),
+  'GLM_L_NEW_TITLE'     => l10n('glm_new_title'),
+  'GLM_L_EDIT_TITLE'    => l10n('glm_edit_title'),
+  'GLM_L_NAME_LBL'      => l10n('glm_name_label'),
+  'GLM_L_TARGET_LBL'    => l10n('glm_target_label'),
+  'GLM_L_BROWSE'        => l10n('glm_browse'),
+  'GLM_L_CREATE'        => l10n('glm_create'),
+  'GLM_L_UPDATE'        => l10n('glm_update'),
+  'GLM_L_CANCEL'        => l10n('glm_cancel'),
+  'GLM_L_BR_TITLE'      => l10n('glm_browser_title'),
+  'GLM_L_BR_SELECT'     => l10n('glm_browser_select'),
+  'GLM_L_BR_LOADING'    => l10n('glm_browser_loading'),
+  'GLM_L_GALLERIES'     => l10n('glm_galleries_dir'),
+  'GLM_L_CFG_TITLE'     => l10n('glm_config_title'),
+  'GLM_L_CFG_ROOT_LBL'  => l10n('glm_config_root_label'),
+  'GLM_L_CFG_ROOT_HELP' => l10n('glm_config_root_help'),
+  'GLM_L_CFG_SAVE'         => l10n('glm_config_save'),
+  'GLM_L_CFG_HIDE_AT_LBL' => l10n('glm_config_hide_at_label'),
+  'GLM_L_CFG_HIDE_AT_HELP' => l10n('glm_config_hide_at_help'),
 
-  // All JS config pre-serialised as JSON — avoids escaping issues in template
-  'GLM_JS_CONFIG'     => json_encode(array(
-    'ajaxUrl'      => get_root_url() . 'admin.php?page=plugin-' . GLM_ID . '&ajax=browse_dir&dir=',
-    'browserStart' => $browser_start,
-    'labels'       => array(
+  'GLM_JS_CONFIG' => json_encode(array(
+    'ajaxUrl'     => get_root_url() . 'admin.php?page=plugin-' . GLM_ID . '&ajax=browse_dir&dir=',
+    'browserRoot' => $browser_root,
+    'labels'      => array(
       'empty'         => l10n('glm_browser_empty'),
       'error'         => l10n('glm_browser_error'),
       'newTitle'      => l10n('glm_new_title'),

@@ -26,6 +26,16 @@ $lang['glm_browser_loading']     = 'Chargement…';
 $lang['glm_browser_empty']       = 'Répertoire vide';
 $lang['glm_browser_error']       = 'Erreur';
 
+// Configuration
+$lang['glm_config_title']        = 'Configuration';
+$lang['glm_config_root_label']   = 'Racine du navigateur :';
+$lang['glm_config_root_help']    = 'Répertoire de départ du navigateur de fichiers. Limite la navigation à cette arborescence (ex. /volume1 sur Synology, / pour aucune restriction).';
+$lang['glm_config_save']         = 'Enregistrer';
+$lang['glm_config_hide_at_label'] = 'Masquer les répertoires @ :';
+$lang['glm_config_hide_at_help']  = 'Masque les répertoires commençant par @ (ex. @eaDir, @tmp sur Synology).';
+$lang['glm_config_saved']        = 'Configuration enregistrée.';
+$lang['glm_config_root_required'] = 'La racine du navigateur ne peut pas être vide.';
+
 // Error messages
 $lang['glm_invalid_link_name']   = 'Nom de lien invalide (caractères autorisés : lettres, chiffres, - _ .)';
 $lang['glm_target_required']     = 'Le répertoire cible est requis.';

@@ -26,6 +26,16 @@ $lang['glm_browser_loading']     = 'Loading…';
 $lang['glm_browser_empty']       = 'Empty directory';
 $lang['glm_browser_error']       = 'Error';
 
+// Configuration
+$lang['glm_config_title']        = 'Configuration';
+$lang['glm_config_root_label']   = 'Browser root:';
+$lang['glm_config_root_help']    = 'Starting directory for the file browser. Restricts navigation to this subtree (e.g. /volume1 on Synology, / for no restriction).';
+$lang['glm_config_save']         = 'Save';
+$lang['glm_config_hide_at_label'] = 'Hide @ directories:';
+$lang['glm_config_hide_at_help']  = 'Hide directories starting with @ (e.g. @eaDir, @tmp on Synology).';
+$lang['glm_config_saved']        = 'Configuration saved.';
+$lang['glm_config_root_required'] = 'Browser root cannot be empty.';
+
 // Error messages
 $lang['glm_invalid_link_name']   = 'Invalid link name (allowed characters: letters, digits, - _ .)';
 $lang['glm_target_required']     = 'Target directory is required.';

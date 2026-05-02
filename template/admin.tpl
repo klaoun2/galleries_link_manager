@@ -122,6 +122,12 @@
     </div>
 
     <div class="glm-form-row">
+      <label for="glm-hide-sys">{$GLM_L_CFG_HIDE_SYS_LBL}</label>
+      <input type="checkbox" id="glm-hide-sys" name="hide_system_dirs" value="1"{if $GLM_HIDE_SYSTEM_DIRS} checked{/if}>
+      <span class="glm-help">{$GLM_L_CFG_HIDE_SYS_HELP}</span>
+    </div>
+
+    <div class="glm-form-row">
       <label></label>
       <button type="submit" class="button bigButton">
         <span class="icon-floppy"></span> {$GLM_L_CFG_SAVE}

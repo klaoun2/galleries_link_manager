@@ -64,8 +64,11 @@ if (isset($_GET['ajax']))
   $browser_root  = isset($conf['galleries_link_manager']['browser_root'])
     ? $conf['galleries_link_manager']['browser_root']
     : '/';
-  $hide_at_dirs  = isset($conf['galleries_link_manager']['hide_at_dirs'])
+  $hide_at_dirs     = isset($conf['galleries_link_manager']['hide_at_dirs'])
     ? (bool)$conf['galleries_link_manager']['hide_at_dirs']
+    : true;
+  $hide_system_dirs = isset($conf['galleries_link_manager']['hide_system_dirs'])
+    ? (bool)$conf['galleries_link_manager']['hide_system_dirs']
     : true;
 
   while (ob_get_level() > 0) { ob_end_clean(); }
@@ -98,6 +101,10 @@ if (isset($_GET['ajax']))
   {
     if ($item === '.' || $item === '..') continue;
     if ($hide_at_dirs && $item[0] === '@') continue;
+    if ($hide_system_dirs && in_array($item, array(
+      'boot', 'dev', 'etc', 'logs', 'lost+found',
+      'proc', 'root', 'run', 'snap', 'srv', 'sys', 'tmp',
+    ))) continue;
     $item_path = $real . '/' . $item;
     if (is_dir($item_path) && !is_link($item_path))
     {
@@ -153,7 +160,8 @@ if (!empty($page_action))
     else
     {
       $glm_conf['browser_root']  = $new_root;
-      $glm_conf['hide_at_dirs']  = !empty($_POST['hide_at_dirs']);
+      $glm_conf['hide_at_dirs']     = !empty($_POST['hide_at_dirs']);
+      $glm_conf['hide_system_dirs'] = !empty($_POST['hide_system_dirs']);
       $browser_root = $new_root;
       conf_update_param('galleries_link_manager', $glm_conf, true);
       $conf['galleries_link_manager'] = $glm_conf;
@@ -197,8 +205,17 @@ if (!empty($page_action))
           @unlink($link_path);
         }
 
-        if (!is_link($link_path) && !file_exists($link_path))
+        if (!function_exists('symlink'))
         {
+          $page['errors'][] = l10n('glm_symlink_disabled');
+        }
+        elseif (!is_writable($galleries_dir))
+        {
+          $page['errors'][] = l10n('glm_galleries_not_writable') . ' (' . $galleries_dir . ')';
+        }
+        elseif (!is_link($link_path) && !file_exists($link_path))
+        {
+          error_clear_last();
           if (@symlink($real_target, $link_path))
           {
             $page['infos'][] = ($page_action === 'create')
@@ -207,7 +224,9 @@ if (!empty($page_action))
           }
           else
           {
-            $page['errors'][] = l10n('glm_link_failed');
+            $err = error_get_last();
+            $detail = $err ? ' — ' . $err['message'] : '';
+            $page['errors'][] = l10n('glm_link_failed') . $detail;
           }
         }
         else
@@ -263,7 +282,8 @@ $template->assign(array(
   'GLM_SYMLINKS'      => $symlinks,
   'GLM_GALLERIES_DIR' => $galleries_dir,
   'GLM_BROWSER_ROOT'  => $browser_root,
-  'GLM_HIDE_AT_DIRS'  => !empty($glm_conf['hide_at_dirs']),
+  'GLM_HIDE_AT_DIRS'     => !empty($glm_conf['hide_at_dirs']),
+  'GLM_HIDE_SYSTEM_DIRS' => !empty($glm_conf['hide_system_dirs']),
   'GLM_FORM_ACTION'   => get_root_url() . 'admin.php?page=plugin-' . GLM_ID,
   'PWG_TOKEN'         => get_pwg_token(),
 
@@ -294,7 +314,9 @@ $template->assign(array(
   'GLM_L_CFG_ROOT_HELP' => l10n('glm_config_root_help'),
   'GLM_L_CFG_SAVE'         => l10n('glm_config_save'),
   'GLM_L_CFG_HIDE_AT_LBL' => l10n('glm_config_hide_at_label'),
-  'GLM_L_CFG_HIDE_AT_HELP' => l10n('glm_config_hide_at_help'),
+  'GLM_L_CFG_HIDE_AT_HELP'      => l10n('glm_config_hide_at_help'),
+  'GLM_L_CFG_HIDE_SYS_LBL'     => l10n('glm_config_hide_sys_label'),
+  'GLM_L_CFG_HIDE_SYS_HELP'    => l10n('glm_config_hide_sys_help'),
 
   'GLM_JS_CONFIG' => json_encode(array(
     'ajaxUrl'     => get_root_url() . 'admin.php?page=plugin-' . GLM_ID . '&ajax=browse_dir&dir=',

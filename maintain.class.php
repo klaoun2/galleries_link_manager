@@ -15,7 +15,7 @@ class galleries_link_manager_maintain extends PluginMaintain
       {
         $browser_root = $m[1];
       }
-      $default = array('browser_root' => $browser_root, 'hide_at_dirs' => true);
+      $default = array('browser_root' => $browser_root, 'hide_at_dirs' => true, 'hide_system_dirs' => true);
       conf_update_param('galleries_link_manager', $default, true);
       $conf['galleries_link_manager'] = $default;
     }

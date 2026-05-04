@@ -140,6 +140,22 @@ $glm_conf     = $conf['galleries_link_manager'];
 $browser_root = isset($glm_conf['browser_root']) ? $glm_conf['browser_root'] : '/';
 $galleries_dir = realpath(PHPWG_ROOT_PATH . 'galleries');
 
+// --- DIAGNOSTIC ---
+$glm_diag = array(
+  'php'         => PHP_VERSION,
+  'symlink_fn'  => function_exists('symlink') ? 'yes' : 'no',
+  'galleries'   => $galleries_dir,
+  'writable'    => is_writable($galleries_dir) ? 'yes' : 'no',
+  'open_basedir'=> ini_get('open_basedir') ?: '(none)',
+  'server_user' => function_exists('posix_getpwuid')
+                   ? posix_getpwuid(posix_geteuid())['name']
+                   : get_current_user(),
+);
+$template->assign('GLM_DIAG', json_encode($glm_diag, JSON_PRETTY_PRINT));
+// --- FIN DIAGNOSTIC ---
+
+
+
 // +---------------------------------------------------------------------------+
 // | Process POST actions                                                      |
 // +---------------------------------------------------------------------------+
@@ -184,9 +200,13 @@ if (!empty($page_action))
     else
     {
       $real_target = @realpath($target);
+
+      // DIAG
       if ($real_target === false)
       {
-        $page['errors'][] = l10n('glm_target_not_found');
+  $ob = ini_get('open_basedir');
+  $detail = $ob ? ' (open_basedir: ' . $ob . ')' : '';
+  $page['errors'][] = l10n('glm_target_not_found') . $detail;
       }
       elseif (!is_dir($real_target))
       {
@@ -200,27 +220,32 @@ if (!empty($page_action))
       {
         $link_path = $galleries_dir . '/' . $link_name;
 
-        if ($page_action === 'edit' && is_link($link_path))
-        {
-          @unlink($link_path);
-        }
-
         if (!function_exists('symlink'))
         {
           $page['errors'][] = l10n('glm_symlink_disabled');
         }
-        elseif (!is_writable($galleries_dir))
+        elseif ($page_action === 'edit' && is_link($link_path))
         {
-          $page['errors'][] = l10n('glm_galleries_not_writable') . ' (' . $galleries_dir . ')';
+          // edit : on supprime l'ancien lien puis on crée le nouveau
+          @unlink($link_path);
+          error_clear_last();
+          if (@symlink($real_target, $link_path))
+          {
+            $page['infos'][] = l10n('glm_link_updated');
+          }
+          else
+          {
+            $err = error_get_last();
+            $detail = $err ? ' — ' . $err['message'] : '';
+            $page['errors'][] = l10n('glm_link_failed') . $detail;
+          }
         }
         elseif (!is_link($link_path) && !file_exists($link_path))
         {
           error_clear_last();
           if (@symlink($real_target, $link_path))
           {
-            $page['infos'][] = ($page_action === 'create')
-              ? l10n('glm_link_created')
-              : l10n('glm_link_updated');
+            $page['infos'][] = l10n('glm_link_created');
           }
           else
           {

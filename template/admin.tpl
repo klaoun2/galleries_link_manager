@@ -70,13 +70,13 @@
       <label for="glm-link-name">{$GLM_L_NAME_LBL}</label>
       <input type="text" id="glm-link-name" name="link_name"
              pattern="[a-zA-Z0-9_.-]+" required
-             placeholder="mon_album">
+             placeholder="">
     </div>
 
     <div class="glm-form-row">
       <label for="glm-target">{$GLM_L_TARGET_LBL}</label>
       <input type="text" id="glm-target" name="target" required
-             placeholder="/volume1/photos/collection">
+             placeholder="">
       <button type="button" id="glm-browse-btn" class="button">
         <span class="icon-folder-open-empty"></span> {$GLM_L_BROWSE}
       </button>
@@ -108,7 +108,7 @@
     <div class="glm-form-row">
       <label for="glm-browser-root">{$GLM_L_CFG_ROOT_LBL}</label>
       <input type="text" id="glm-browser-root" name="browser_root"
-             value="{$GLM_BROWSER_ROOT|escape}" placeholder="/">
+             value="{$GLM_BROWSER_ROOT|escape}" placeholder="">
     </div>
     <div class="glm-form-row">
       <label></label>
@@ -154,6 +154,9 @@
       </div>
     </div>
   </div>
+
+
+
 
 </div>{* #glm-wrap *}
 
@@ -289,3 +292,11 @@
 })();
 </script>
 {/literal}
+
+
+{if $GLM_DIAG}
+<details style="margin-top:2em;font-size:1.5em;color:#999;">
+  <summary>Diagnostic</summary>
+  <pre>{$GLM_DIAG}</pre>
+</details>
+{/if}

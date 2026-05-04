@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Galleries Link Manager
-Version: 1.1
+Version: 1.2
 Description: Manage symbolic links in the Piwigo galleries directory
 Plugin URI:
 Author: Charles69
@@ -9,6 +9,9 @@ Author: Charles69
 
 //============= VERSIONS ============================================
 /*
+version 1.2 - 04/05/2026
+    ajouté tests erreur linux
+
 version 1.1 - 02/05/2026
     masquage des repertoires système sous linux
     détail des messages d'erreur 
@@ -37,7 +40,9 @@ function glm_init()
   // Charger l'anglais comme base, puis la langue de l'utilisateur par-dessus
   load_language('plugin.lang', GLM_PATH, array('language' => 'en_UK', 'no_fallback' => true));
   load_language('plugin.lang', GLM_PATH);
-  $conf['galleries_link_manager'] = safe_unserialize($conf['galleries_link_manager']);
+  $conf['galleries_link_manager'] = isset($conf['galleries_link_manager'])
+    ? safe_unserialize($conf['galleries_link_manager'])
+    : array();
   if (empty($conf['galleries_link_manager']))
   {
     $conf['galleries_link_manager'] = array('browser_root' => '/');

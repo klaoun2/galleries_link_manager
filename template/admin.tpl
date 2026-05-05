@@ -295,7 +295,7 @@
 
 
 {if $GLM_DIAG}
-<details style="margin-top:2em;font-size:1.5em;color:#999;">
+<details style="margin-top:2em;font-size:1.5em;color:#999;text-align:left;margin-left:20px;">
   <summary>Diagnostic</summary>
   <pre>{$GLM_DIAG}</pre>
 </details>

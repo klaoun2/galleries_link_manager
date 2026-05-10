@@ -53,3 +53,4 @@ $lang['glm_delete_failed']       = 'Failed to delete symbolic link.';
 $lang['glm_link_created']        = 'Symbolic link created successfully.';
 $lang['glm_link_updated']        = 'Symbolic link updated successfully.';
 $lang['glm_link_deleted']        = 'Symbolic link deleted.';
+$lang['glm_usage_tip']           = 'Tip: after creating a symbolic link <code>photo_xyz</code>, go to the <strong>Synchronize</strong> tab, first run a <strong>Directories only</strong> synchronisation (to create the album), then a <strong>Directories + files</strong> synchronisation selecting <code>photo_xyz</code> with its sub-directories. Photos will appear in the album.';

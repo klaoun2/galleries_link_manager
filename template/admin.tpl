@@ -158,6 +158,8 @@
 
 
 
+  <div class="glm-tip">{$GLM_L_USAGE_TIP}</div>
+
 </div>{* #glm-wrap *}
 
 {literal}

@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Galleries Link Manager
-Version: 1.3
+Version: 1.4
 Description: Manage symbolic links in the Piwigo galleries directory
 Plugin URI: https://piwigo.org/ext/extension_view.php?eid=1080
 Author: Charles69
@@ -9,6 +9,9 @@ Author: Charles69
 
 //============= VERSIONS ============================================
 /*
+version 1.4 - 10/05/2026
+    ajouté recommandation
+    
 version 1.3 - 07/05/2026
     ajouté URI
 

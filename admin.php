@@ -338,6 +338,7 @@ $template->assign(array(
   'GLM_L_CFG_ROOT_LBL'  => l10n('glm_config_root_label'),
   'GLM_L_CFG_ROOT_HELP' => l10n('glm_config_root_help'),
   'GLM_L_CFG_SAVE'         => l10n('glm_config_save'),
+  'GLM_L_USAGE_TIP'        => l10n('glm_usage_tip'),
   'GLM_L_CFG_HIDE_AT_LBL' => l10n('glm_config_hide_at_label'),
   'GLM_L_CFG_HIDE_AT_HELP'      => l10n('glm_config_hide_at_help'),
   'GLM_L_CFG_HIDE_SYS_LBL'     => l10n('glm_config_hide_sys_label'),

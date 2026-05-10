@@ -53,3 +53,4 @@ $lang['glm_delete_failed']       = 'Échec de la suppression du lien symbolique.
 $lang['glm_link_created']        = 'Lien symbolique créé avec succès.';
 $lang['glm_link_updated']        = 'Lien symbolique mis à jour avec succès.';
 $lang['glm_link_deleted']        = 'Lien symbolique supprimé.';
+$lang['glm_usage_tip']           = 'Recommandation : après avoir créé un lien symbolique <code>photo_xyz</code>, allez dans l\'onglet <strong>Synchroniser</strong>, lancez d\'abord une synchronisation <strong>Répertoires uniquement</strong> (pour créer l\'album), puis une synchronisation <strong>Répertoires + fichiers</strong> en sélectionnant <code>photo_xyz</code> avec ses sous-répertoires. Les photos apparaîtront dans l\'album.';

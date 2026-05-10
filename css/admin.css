@@ -9,9 +9,22 @@
 #glm-wrap .glm-form-row label { width: 160px; flex-shrink: 0; font-weight: bold; }
 #glm-wrap .glm-form-row input[type=text] { flex: 1; max-width: 480px; }
 #glm-wrap table.table2 td code { font-size: 1.5em; } /* police cible */
+#glm-wrap .glm-tip code         { font-size: 1.6em; } /* police photo_xyz */
 #glm-wrap .glm-help   { color: #777; font-size: .85em; font-style: italic; }
 #glm-wrap .glm-actions { white-space: nowrap; }
 #glm-wrap .glm-actions form { display: inline; }
+
+/* Usage tip box */
+#glm-wrap .glm-tip {
+  background: #f5f7fa;
+  border-left: 4px solid #90a4ae;
+  padding: 10px 14px;
+  margin: 2em 0 0 20px;
+  max-width: 648px;
+  color: #555;
+  font-size: 1.2em;
+  text-align: left;
+}
 
 /* Directory browser overlay */
 #glm-overlay {

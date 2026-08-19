@@ -24,6 +24,9 @@ class galleries_link_manager_maintain extends PluginMaintain
   function activate($plugin_version, &$errors = array())
   {
     $this->install($plugin_version, $errors);
+    // Force Smarty recompile so the cat-tree prefilter is applied immediately
+    global $template;
+    $template->smarty->clearCompiledTemplate();
   }
 
   function uninstall()

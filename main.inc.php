@@ -5,6 +5,7 @@ Version: auto
 Description: Manage symbolic links in the Piwigo galleries directory
 Plugin URI: https://piwigo.org/ext/extension_view.php?eid=1080
 Author: Charles69
+Has Settings: true
 */
 
 //============= VERSIONS ============================================
